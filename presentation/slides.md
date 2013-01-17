@@ -1,27 +1,26 @@
 # presentation
 
-!SLIDE
+!SLIDE left
 
-# A Title Slide
+# Test-driving Chef cookbooks
+## Using ChefSpec and Librarian-Chef
 
-## me@example.com
+anujbiyani01@gmail.com
 
-!SLIDE
+!SLIDE left
 
-# Some sample code
+# What is Chef?
 
-``` ruby
-def method
-  puts "Hello, World"
-end
-```
+Chef treats infrastructure as code
+* maintainable
+* testable
+* scalable
+* a simple-ish DSL on top of Ruby
 
-!NOTES
+!SLIDE left
 
- * a note
+# So what's a cookbook?
 
-!SLIDE
-
-# With a Background Image
-
-}}} images/test.png
+Cookbooks are like libraries
+* they contain code that accomplishes some specific goal, like installing Apache2 or Git.
+* http://community.opscode.com/cookbooks
