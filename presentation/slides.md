@@ -83,3 +83,31 @@ I have a template setup here: https://github.com/Lytro/chef_cookbook_template
 7. **Files** can be **copied to the target system**, and are sorted in subdirectories by OS
 8. **Templates** are **files that use .erb** to inject ruby variables, usually from attributes.
 9. **Metadata** simply **contains information about the cookbook** that Chef uses for information like dependencies and which OSes the cookbook supports.
+
+* For the most part you can ignore `libraries`, `providers`, and `resources` (you'll rarely need them).
+* I use `files` and `templates` frequently but not always.
+* `recipes` are mandatory, and `attributes` are pretty much always necessary.
+
+!SLIDE left
+
+## Let's dive in: `metadata.rb`
+
+```ruby
+name             "Cookbook Name" # Optional, if omitted then is inferred
+                                 # from the name of the directory
+maintainer       "Your Name"
+maintainer_email "your@email.com"
+license          "Apache 2.0"
+description      "Installs/Configures cookbook_name"
+long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
+version          "0.1.0"
+
+depends          "some_other_cookbook", "> 0.1.0"
+depends          "another_cookbook", "> 0.1.5"
+supports         "Ubuntu", "> 10.04.4"
+```
+
+Librarian-Chef pulls in dependent cookbooks through the "depends" listing.
+ * You cannot target a git repo through the metadata (instead, use the Cheffile).
+
+http://wiki.opscode.com/display/chef/Metadata

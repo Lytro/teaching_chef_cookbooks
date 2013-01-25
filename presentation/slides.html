@@ -110,18 +110,42 @@
   <div class='spacer bottom'></div>
 </section>
     <section class='left slide'>
-        <div class='spacer top'></div>
-        <div class='content'>
-          <h2>What it all means - continued</h2>
-          
-          <ol>
-          <li><strong>Files</strong> can be <strong>copied to the target system</strong>, and are sorted in subdirectories by OS</li>
-          <li><strong>Templates</strong> are <strong>files that use .erb</strong> to inject ruby variables, usually from attributes.</li>
-          <li><strong>Metadata</strong> simply <strong>contains information about the cookbook</strong> that Chef uses for information like dependencies and which OSes the cookbook supports.</li>
-          </ol>
-        </div>
-        <div class='spacer bottom'></div>
-      </section>
+  <div class='spacer top'></div>
+  <div class='content'>
+    <h2>What it all means - continued</h2>
+
+<ol>
+<li><strong>Files</strong> can be <strong>copied to the target system</strong>, and are sorted in subdirectories by OS</li>
+<li><strong>Templates</strong> are <strong>files that use .erb</strong> to inject ruby variables, usually from attributes.</li>
+<li><strong>Metadata</strong> simply <strong>contains information about the cookbook</strong> that Chef uses for information like dependencies and which OSes the cookbook supports.</li>
+</ol>
+
+<ul>
+<li>For the most part you can ignore <code>libraries</code>, <code>providers</code>, and <code>resources</code> (you&#39;ll rarely need them).</li>
+<li>I use <code>files</code> and <code>templates</code> frequently but not always.</li>
+<li><code>recipes</code> are mandatory, and <code>attributes</code> are pretty much always necessary.</li>
+</ul>
+  </div>
+  <div class='spacer bottom'></div>
+</section>
+    <section class='left slide'>
+  <div class='spacer top'></div>
+  <div class='content'>
+    <h2>Let&#39;s dive in: <code>metadata.rb</code></h2>
+
+<p><textarea class='code' display='none' mode='ruby'>name             "Cookbook Name" # Optional, if omitted then is inferred&#x000A;                                 # from the name of the directory&#x000A;maintainer       "Your Name"&#x000A;maintainer_email "your@email.com"&#x000A;license          "Apache 2.0"&#x000A;description      "Installs/Configures cookbook_name"&#x000A;long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))&#x000A;version          "0.1.0"&#x000A;&#x000A;depends          "some_other_cookbook", "> 0.1.0"&#x000A;depends          "another_cookbook", "> 0.1.5"&#x000A;supports         "Ubuntu", "> 10.04.4"</textarea>
+</p>
+
+<p>Librarian-Chef pulls in dependent cookbooks through the &quot;depends&quot; listing.</p>
+
+<ul>
+<li>You cannot target a git repo through the metadata (instead, use the Cheffile).</li>
+</ul>
+
+<p><a href="http://wiki.opscode.com/display/chef/Metadata">http://wiki.opscode.com/display/chef/Metadata</a></p>
+  </div>
+  <div class='spacer bottom'></div>
+</section>
     <!-- deck.js navigation extension -->
     <a class='deck-prev-link' href='#' title='Previous'>&#8592;</a>
     <a class='deck-next-link' href='#' title='Next'>&#8594;</a>
