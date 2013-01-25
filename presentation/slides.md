@@ -10,7 +10,7 @@ https://github.com/Lytro/teaching_chef_cookbooks
 
 !SLIDE left
 
-# What is Chef?
+## What is Chef?
 
 Chef treats infrastructure as code
 * maintainable
@@ -20,7 +20,7 @@ Chef treats infrastructure as code
 
 !SLIDE left
 
-# So what's a cookbook?
+## So what's a cookbook?
 
 Cookbooks are like libraries
 * they contain code that accomplishes some specific goal, like installing Apache2 or Git.
@@ -28,7 +28,7 @@ Cookbooks are like libraries
 
 !SLIDE left
 
-# Here's what's inside a stock cookbook:
+## Here's what's inside a stock cookbook:
 
 ```shell
   └── my_cookbook/
@@ -49,7 +49,7 @@ Cookbooks are like libraries
 
 !SLIDE left
 
-# My cookbooks have a couple of additions:
+## My cookbooks have a couple of additions:
 
 ```shell
   └── my_cookbook
@@ -69,7 +69,7 @@ I have a template setup here: https://github.com/Lytro/chef_cookbook_template
 
 !SLIDE left
 
-# What it all means
+## What it all means
 1. **Recipes** are the meat of a cookbook. They **contain the code that gets executed**.
 2. **Attributes** contain **variables** that can get overridden by people using the cookbook, or that vary depending on the OS.
 3. **Definitions** are basically contain **functions** that are used across recipes.
@@ -79,7 +79,7 @@ I have a template setup here: https://github.com/Lytro/chef_cookbook_template
 
 !SLIDE left
 
-# What it all means - continued
+## What it all means - continued
 7. **Files** can be **copied to the target system**, and are sorted in subdirectories by OS
 8. **Templates** are **files that use .erb** to inject ruby variables, usually from attributes.
 9. **Metadata** simply **contains information about the cookbook** that Chef uses for information like dependencies and which OSes the cookbook supports.
