@@ -88,9 +88,11 @@ I have a template setup here: https://github.com/Lytro/chef_cookbook_template
 8. **Templates** are **files that use .erb** to inject ruby variables, usually from attributes.
 9. **Metadata** simply **contains information about the cookbook** that Chef uses for information like dependencies and which OSes the cookbook supports.
 
-* For the most part you can ignore `libraries`, `providers`, and `resources` (you'll rarely need them).
+* For the most part you can ignore `libraries`, `providers`, and `resources` (you'll rarely need them, and I won't be explaining them because I haven't used them).*
 * I use `files` and `templates` frequently but not always.
 * `recipes` are mandatory, and `attributes` are pretty much always necessary.
+
+<sub>* http://wiki.opscode.com/display/chef/Introduction+to+Cookbooks+and+More</sub>
 
 !SLIDE left
 
