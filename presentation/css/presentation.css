@@ -1,7 +1,6 @@
 .keydown.deck-container .slide h1 { text-align: center; margin: 0 auto 0.5em auto; }
 .keydown.deck-container .slide .content > ul { display: inline-block }
 .content { width: 100% }
-.deck-container p { margin-bottom: 0.1em }
 
 .keydown.deck-container #slide-0 p { text-align: center; }
 #slide-0 h2 {
@@ -19,4 +18,7 @@ section.slide h2 {
 
 #slide-0 p { margin: 0 auto; }
 
-#slide-3 p, #slide-4 p { margin: 0 auto; }
+.slide p {
+  margin-left: auto;
+  margin-right: auto;
+}
