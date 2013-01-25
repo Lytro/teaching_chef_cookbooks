@@ -71,7 +71,7 @@
   <div class='content'>
     <h1>Here&#39;s what&#39;s inside a stock cookbook:</h1>
     
-    <p><textarea class='code' display='none' mode='shell'>└── my_cookbook/&#x000A;  ├── attributes/&#x000A;  │   └── default.rb&#x000A;  ├── definitions/&#x000A;  ├── libraries/&#x000A;  ├── providers/&#x000A;  ├── recipes/&#x000A;  │   └── default.rb&#x000A;  ├── resources/&#x000A;  ├── templates/&#x000A;  ├── metadata.rb&#x000A;  └── README.md</textarea>
+    <p><textarea class='code' display='none' mode='shell'>└── my_cookbook/&#x000A;  ├── attributes/&#x000A;  │   └── default.rb&#x000A;  ├── definitions/&#x000A;  ├── files/&#x000A;  │   └── default/&#x000A;  ├── libraries/&#x000A;  ├── providers/&#x000A;  ├── recipes/&#x000A;  │   └── default.rb&#x000A;  ├── resources/&#x000A;  ├── templates/&#x000A;  ├── metadata.rb&#x000A;  └── README.md</textarea>
 </p>
   </div>
   <div class='spacer bottom'></div>
@@ -93,6 +93,35 @@
   </div>
   <div class='spacer bottom'></div>
 </section>
+    <section class='left slide'>
+  <div class='spacer top'></div>
+  <div class='content'>
+    <h1>What it all means</h1>
+
+<ol>
+<li><strong>Recipes</strong> are the meat of a cookbook. They <strong>contain the code that gets executed</strong>.</li>
+<li><strong>Attributes</strong> contain <strong>variables</strong> that can get overridden by people using the cookbook, or that vary depending on the OS.</li>
+<li><strong>Definitions</strong> are basically contain <strong>functions</strong> that are used across recipes.</li>
+<li><strong>Libraries</strong> contain generic Ruby. <strong>Classes or modules</strong> can be defined in here and used across recipes/definitions/whatever.</li>
+<li><strong>Providers</strong> know how to accomplish certain goals for different OSes. An example of a &quot;goal&quot; <strong>might be creating a directory or downloading a file</strong> from the web.</li>
+<li><strong>Resources</strong> are simply <strong>a specific provider</strong>. For example, <code>directory</code> is a resource that creates a directory; it is implemented via providers.</li>
+</ol>
+  </div>
+  <div class='spacer bottom'></div>
+</section>
+    <section class='left slide'>
+        <div class='spacer top'></div>
+        <div class='content'>
+          <h1>What it all means - continued</h1>
+          
+          <ol>
+          <li><strong>Files</strong> can be <strong>copied to the target system</strong>, and are sorted in subdirectories by OS</li>
+          <li><strong>Templates</strong> are <strong>files that use .erb</strong> to inject ruby variables, usually from attributes.</li>
+          <li><strong>Metadata</strong> simply <strong>contains information about the cookbook</strong> that Chef uses for information like dependencies and which OSes the cookbook supports.</li>
+          </ol>
+        </div>
+        <div class='spacer bottom'></div>
+      </section>
     <!-- deck.js navigation extension -->
     <a class='deck-prev-link' href='#' title='Previous'>&#8592;</a>
     <a class='deck-next-link' href='#' title='Next'>&#8594;</a>

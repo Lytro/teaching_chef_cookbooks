@@ -35,6 +35,8 @@ Cookbooks are like libraries
     ├── attributes/
     │   └── default.rb
     ├── definitions/
+    ├── files/
+    │   └── default/
     ├── libraries/
     ├── providers/
     ├── recipes/
@@ -64,3 +66,20 @@ Cookbooks are like libraries
 * specs are a part of ChefSpec (which is built on RSpec)
 
 I have a template setup here: https://github.com/Lytro/chef_cookbook_template
+
+!SLIDE left
+
+# What it all means
+1. **Recipes** are the meat of a cookbook. They **contain the code that gets executed**.
+2. **Attributes** contain **variables** that can get overridden by people using the cookbook, or that vary depending on the OS.
+3. **Definitions** are basically contain **functions** that are used across recipes.
+4. **Libraries** contain generic Ruby. **Classes or modules** can be defined in here and used across recipes/definitions/whatever.
+5. **Providers** know how to accomplish certain goals for different OSes. An example of a "goal" **might be creating a directory or downloading a file** from the web.
+6. **Resources** are simply **a specific provider**. For example, `directory` is a resource that creates a directory; it is implemented via providers.
+
+!SLIDE left
+
+# What it all means - continued
+7. **Files** can be **copied to the target system**, and are sorted in subdirectories by OS
+8. **Templates** are **files that use .erb** to inject ruby variables, usually from attributes.
+9. **Metadata** simply **contains information about the cookbook** that Chef uses for information like dependencies and which OSes the cookbook supports.
