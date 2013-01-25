@@ -5,7 +5,8 @@
 # Test-driving Chef cookbooks
 ## Using ChefSpec and Librarian-Chef
 
-anujbiyani01@gmail.com
+abiyani@lytro.com
+https://github.com/Lytro/teaching_chef_cookbooks
 
 !SLIDE left
 
@@ -62,4 +63,4 @@ Cookbooks are like libraries
 * Cheffile is a part of Librarian-Chef; it's very similar to a Gemfile
 * specs are a part of ChefSpec (which is built on RSpec)
 
-I have a template setup here: https://github.com/anujbiyani/chef_cookbook_template
+I have a template setup here: https://github.com/Lytro/chef_cookbook_template

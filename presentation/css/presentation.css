@@ -3,6 +3,7 @@
 .content { width: 100% }
 .deck-container p { margin-bottom: 0.1em }
 
+.keydown.deck-container #slide-0 p { text-align: center; }
 #slide-0 h2 {
   font-size: 3rem;
   margin-left: auto;
