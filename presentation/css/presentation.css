@@ -16,9 +16,6 @@ section.slide h2 {
   text-align: center;
 }
 
-#slide-0 p { margin: 0 auto; }
-
-.slide p {
-  margin-left: auto;
-  margin-right: auto;
+.slide .content figure {
+  margin: 0 auto 20px auto;
 }
