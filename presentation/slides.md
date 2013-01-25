@@ -123,6 +123,7 @@ Librarian-Chef pulls in dependent cookbooks through the "depends" listing.
 !SLIDE left
 
 ## `attributes/default.rb`
+
 <figure>
 ```ruby
 default[:cookbook_name][:variable]
@@ -150,3 +151,33 @@ Precedence, from low to high:
 <sub>http://wiki.opscode.com/display/chef/Attributes</sub>
 
 <sub>* Ohai is a gem that Chef depends on. It profiles your system and generates attributes like `node[:language][:ruby][:gems_dir]`. More on it in [teaching_chef_repos](https://github.com/Lytro/teaching_chef_repos).</sub>
+
+!SLIDE left
+
+## `Cheffile`
+
+<figure>
+```ruby
+#!/usr/bin/env ruby
+#^syntax detection
+
+site 'http://community.opscode.com/api/v1'
+
+# cookbook 'chef-client'
+
+# cookbook 'apache2', '>= 1.0.0'
+
+# cookbook 'rvm',
+#   :git => 'https://github.com/fnichol/chef-rvm'
+
+# cookbook 'postgresql',
+#   :git => 'https://github.com/findsyou/cookbooks',
+#   :ref => 'postgresql-improvements'
+```
+</figure>
+
+* `librarian-chef install` will install cookbooks to `cookbooks/`
+* `librarian-chef update [cookbook]` will update the given cookbook. If no cookbook is passed, then it updates all cookbooks and dependencies.
+* `.gitignore` should contain `cookbooks/` and `tmp/`
+
+<sub>If a cookbook `foo` depends on cookbook `baz` and you want to pull `baz` from a Github repo, then specify it here. Otherwise, dependent cookbooks do not need to be mentioned in the Cheffile.</sub>

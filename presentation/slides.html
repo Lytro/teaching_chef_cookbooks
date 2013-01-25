@@ -185,6 +185,26 @@
   </div>
   <div class='spacer bottom'></div>
 </section>
+    <section class='left slide'>
+  <div class='spacer top'></div>
+  <div class='content'>
+    <h2><code>Cheffile</code></h2>
+
+<figure>
+<textarea class='code' display='none' mode='ruby'>#!/usr/bin/env ruby&#x000A;#^syntax detection&#x000A;&#x000A;site 'http://community.opscode.com/api/v1'&#x000A;&#x000A;# cookbook 'chef-client'&#x000A;&#x000A;# cookbook 'apache2', '>= 1.0.0'&#x000A;&#x000A;# cookbook 'rvm',&#x000A;#   :git => 'https://github.com/fnichol/chef-rvm'&#x000A;&#x000A;# cookbook 'postgresql',&#x000A;#   :git => 'https://github.com/findsyou/cookbooks',&#x000A;#   :ref => 'postgresql-improvements'</textarea>
+
+</figure>
+
+<ul>
+<li><code>librarian-chef install</code> will install cookbooks to <code>cookbooks/</code></li>
+<li><code>librarian-chef update [cookbook]</code> will update the given cookbook. If no cookbook is passed, then it updates all cookbooks and dependencies.</li>
+<li><code>.gitignore</code> should contain <code>cookbooks/</code> and <code>tmp/</code></li>
+</ul>
+
+<p><sub>If a cookbook <code>foo</code> depends on cookbook <code>baz</code> and you want to pull <code>baz</code> from a Github repo, then specify it here. Otherwise, dependent cookbooks do not need to be mentioned in the Cheffile.</sub></p>
+  </div>
+  <div class='spacer bottom'></div>
+</section>
     <!-- deck.js navigation extension -->
     <a class='deck-prev-link' href='#' title='Previous'>&#8592;</a>
     <a class='deck-next-link' href='#' title='Next'>&#8594;</a>
