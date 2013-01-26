@@ -176,3 +176,93 @@ site 'http://community.opscode.com/api/v1'
 * `.gitignore` should contain `cookbooks/` and `tmp/`
 
 <sub>If a cookbook `foo` depends on cookbook `baz` and you want to pull `baz` from a Github repo, then specify it here. Otherwise, dependent cookbooks do not need to be mentioned in the Cheffile.</sub>
+
+!SLIDE left
+
+## Time for recipes. [apsoto/monit](https://github.com/apsoto/monit)
+### apsoto::default
+
+<figure>
+```ruby
+package "monit"
+
+if platform?("ubuntu")
+  cookbook_file "/etc/default/monit" do
+    source "monit.default"
+    owner "root"
+    group "root"
+    mode 0644
+  end
+end
+
+service "monit" do
+  action [:enable, :start]
+  enabled true
+  supports [:start, :restart, :stop]
+end
+
+directory "/etc/monit/conf.d/" do
+  owner  'root'
+  group 'root'
+  mode 0755
+  action :create
+  recursive true
+end
+
+template "/etc/monit/monitrc" do
+  owner "root"
+  group "root"
+  mode 0700
+  source 'monitrc.erb'
+  notifies :restart, resources(:service => "monit"), :delayed
+end
+```
+</figure>
+
+!SLIDE left
+
+## [apsoto/monit](https://github.com/apsoto/monit)
+### `monit::postfix`
+
+<figure>
+```ruby
+include_recipe "monit"
+
+monitrc "postfix"
+```
+</figure>
+
+### `definitions/monitrc`
+
+<figure>
+```ruby
+# reload: Reload monit so it notices the new service.  :delayed (default) or :immediately.
+# action: :enable To create the monitoring config (default), or :disable to remove it.
+# variables: Hash of instance variables to pass to the ERB template
+# template_cookbook: the cookbook in which the configuration resides
+# template_source: filename of the ERB configuration template, defaults to <LWRP Name>.conf.erb
+
+define :monitrc, :action => :enable, :reload => :delayed, :variables => {}, :template_cookbook => "monit", :template_source => nil do
+  params[:template_source] ||= "#{params[:name]}.conf.erb"
+  if params[:action] == :enable
+    template "/etc/monit/conf.d/#{params[:name]}.conf" do
+      owner "root"
+      group "root"
+      mode 0644
+
+      source params[:template_source]
+      cookbook params[:template_cookbook]
+      variables params[:variables]
+
+      notifies :restart, resources(:service => "monit"), params[:reload]
+      action :create
+    end
+  else
+    template "/etc/monit/conf.d/#{params[:name]}.conf" do
+      action :delete
+      notifies :restart, resources(:service => "monit"), params[:reload]
+    end
+  end
+end
+```
+</figure>

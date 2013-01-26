@@ -202,6 +202,41 @@
   </div>
   <div class='spacer bottom'></div>
 </section>
+    <section class='left slide'>
+  <div class='spacer top'></div>
+  <div class='content'>
+    <h2>Time for recipes. <a href="https://github.com/apsoto/monit">apsoto/monit</a></h2>
+    
+    <h3>apsoto::default</h3>
+    
+    <figure>
+    <textarea class='code' display='none' mode='ruby'>package "monit"&#x000A;&#x000A;if platform?("ubuntu")&#x000A;  cookbook_file "/etc/default/monit" do&#x000A;    source "monit.default"&#x000A;    owner "root"&#x000A;    group "root"&#x000A;    mode 0644&#x000A;  end&#x000A;end&#x000A;&#x000A;service "monit" do&#x000A;  action [:enable, :start]&#x000A;  enabled true&#x000A;  supports [:start, :restart, :stop]&#x000A;end&#x000A;&#x000A;directory "/etc/monit/conf.d/" do&#x000A;  owner  'root'&#x000A;  group 'root'&#x000A;  mode 0755&#x000A;  action :create&#x000A;  recursive true&#x000A;end&#x000A;&#x000A;template "/etc/monit/monitrc" do&#x000A;  owner "root"&#x000A;  group "root"&#x000A;  mode 0700&#x000A;  source 'monitrc.erb'&#x000A;  notifies :restart, resources(:service => "monit"), :delayed&#x000A;end</textarea>
+
+    </figure>
+  </div>
+  <div class='spacer bottom'></div>
+</section>
+    <section class='left slide'>
+  <div class='spacer top'></div>
+  <div class='content'>
+    <h2><a href="https://github.com/apsoto/monit">apsoto/monit</a></h2>
+
+<h3><code>monit::postfix</code></h3>
+
+<figure>
+<textarea class='code' display='none' mode='ruby'>include_recipe "monit"&#x000A;&#x000A;monitrc "postfix"</textarea>
+
+</figure>
+
+<h3><code>definitions/monitrc</code></h3>
+
+<figure>
+<textarea class='code' display='none' mode='ruby'># reload: Reload monit so it notices the new service.  :delayed (default) or :immediately.&#x000A;# action: :enable To create the monitoring config (default), or :disable to remove it.&#x000A;# variables: Hash of instance variables to pass to the ERB template&#x000A;# template_cookbook: the cookbook in which the configuration resides&#x000A;# template_source: filename of the ERB configuration template, defaults to <LWRP Name>.conf.erb&#x000A;&#x000A;define :monitrc, :action => :enable, :reload => :delayed, :variables => {}, :template_cookbook => "monit", :template_source => nil do&#x000A;  params[:template_source] ||= "#{params[:name]}.conf.erb"&#x000A;  if params[:action] == :enable&#x000A;    template "/etc/monit/conf.d/#{params[:name]}.conf" do&#x000A;      owner "root"&#x000A;      group "root"&#x000A;      mode 0644&#x000A;&#x000A;      source params[:template_source]&#x000A;      cookbook params[:template_cookbook]&#x000A;      variables params[:variables]&#x000A;&#x000A;      notifies :restart, resources(:service => "monit"), params[:reload]&#x000A;      action :create&#x000A;    end&#x000A;  else&#x000A;    template "/etc/monit/conf.d/#{params[:name]}.conf" do&#x000A;      action :delete&#x000A;      notifies :restart, resources(:service => "monit"), params[:reload]&#x000A;    end&#x000A;  end&#x000A;end</textarea>
+
+</figure>
+  </div>
+  <div class='spacer bottom'></div>
+</section>
     <!-- deck.js navigation extension -->
     <a class='deck-prev-link' href='#' title='Previous'>&#8592;</a>
     <a class='deck-next-link' href='#' title='Next'>&#8594;</a>
