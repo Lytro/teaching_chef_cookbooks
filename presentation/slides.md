@@ -371,7 +371,7 @@ end
 require 'spec_helper'
 
 describe 'chef_ec2_cli_tools::api' do
-  let(:chef_run) { @runner.converge 'chef_ec2_cli_tools::api' }
+  let(:chef_run) { runner.converge 'chef_ec2_cli_tools::api' }
 
   it_behaves_like 'ec2 cli tools', 'api'
 
@@ -381,9 +381,9 @@ describe 'chef_ec2_cli_tools::api' do
 
   it "exports the AWS_ACCESS_KEY and AWS_SECRET_KEY" do
     chef_run.should create_file_with_content '/etc/profile.d/aws_keys.sh',
-                                             "export AWS_ACCESS_KEY=#{@runner.node['chef_ec2_cli_tools']['aws_access_key']}"
+                                             "export AWS_ACCESS_KEY=#{runner.node['chef_ec2_cli_tools']['aws_access_key']}"
     chef_run.should create_file_with_content '/etc/profile.d/aws_keys.sh',
-                                             "export AWS_SECRET_KEY=#{@runner.node['chef_ec2_cli_tools']['aws_secret_key']}"
+                                             "export AWS_SECRET_KEY=#{runner.node['chef_ec2_cli_tools']['aws_secret_key']}"
     chef_run.template('/etc/profile.d/aws_keys.sh').should be_owned_by('root', 'root')
   end
 end
@@ -458,9 +458,9 @@ shared_examples_for "ec2 cli tools" do |ami_or_api|
 
   it "sets the EC2_HOME environment variable and adds the tools to the path" do
     chef_run.should create_file_with_content '/etc/profile.d/ec2_tools.sh',
-                                             "export EC2_HOME=#{@runner.node['chef_ec2_cli_tools']['install_target']}"
+                                             "export EC2_HOME=#{runner.node['chef_ec2_cli_tools']['install_target']}"
     chef_run.should create_file_with_content '/etc/profile.d/ec2_tools.sh',
-                                             "export PATH=$PATH:#{@runner.node['chef_ec2_cli_tools']['install_target']}/bin"
+                                             "export PATH=$PATH:#{runner.node['chef_ec2_cli_tools']['install_target']}/bin"
     chef_run.template('/etc/profile.d/ec2_tools.sh').should be_owned_by('root', 'root')
   end
 
