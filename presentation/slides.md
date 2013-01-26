@@ -271,7 +271,21 @@ end
 
 ## Time for [ChefSpec](https://github.com/acrmp/chefspec)
 
-### `spec/spec_helper.rb`
+* ChefSpec does NOT actually install anything or mess with files or do whatever your recipe is meant to do.
+  * In Chef-speak, ChefSpec does not "converge a node"
+  * Instead, it tracks intended actions and lets you assert against them.
+* It can test against definitions that are built-in, including variations based on environment and platform.
+  * `chef_run.should create_file_with_content 'hello-world.txt', 'hello world'`
+  * `chef_run.should install_package_at_version 'foo', '1.2.3'`
+  * more [on the ChefSpec repo](https://github.com/acrmp/chefspec#making-assertions) and on the next slides
+* Run it just like you would any other RSpec test
+  * `bundle exec rspec [file]` where `file` is optional
+
+<sub>You can only access the chef_environment attribute with `node.chef_environment` and not `node[:chef_environment]` or `node["chef_environment"]`. This is because it's actually method and not a variable.</sub>
+
+!SLIDE left
+
+## This is the `spec_helper.rb` that I've created.
 
 <figure>
 ```ruby

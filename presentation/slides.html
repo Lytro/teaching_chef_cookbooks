@@ -242,7 +242,35 @@
   <div class='content'>
     <h2>Time for <a href="https://github.com/acrmp/chefspec">ChefSpec</a></h2>
 
-<h3><code>spec/spec_helper.rb</code></h3>
+<ul>
+<li>ChefSpec does NOT actually install anything or mess with files or do whatever your recipe is meant to do.
+
+<ul>
+<li>In Chef-speak, ChefSpec does not &quot;converge a node&quot;</li>
+<li>Instead, it tracks intended actions and lets you assert against them.</li>
+</ul></li>
+<li>It can test against definitions that are built-in, including variations based on environment and platform.
+
+<ul>
+<li><code>chef_run.should create_file_with_content &#39;hello-world.txt&#39;, &#39;hello world&#39;</code></li>
+<li><code>chef_run.should install_package_at_version &#39;foo&#39;, &#39;1.2.3&#39;</code></li>
+<li>more <a href="https://github.com/acrmp/chefspec#making-assertions">on the ChefSpec repo</a> and on the next slides</li>
+</ul></li>
+<li>Run it just like you would any other RSpec test
+
+<ul>
+<li><code>bundle exec rspec [file]</code> where <code>file</code> is optional</li>
+</ul></li>
+</ul>
+
+<p><sub>You can only access the chef_environment attribute with <code>node.chef_environment</code> and not <code>node[:chef_environment]</code> or <code>node[&quot;chef_environment&quot;]</code>. This is because it&#39;s actually method and not a variable.</sub></p>
+  </div>
+  <div class='spacer bottom'></div>
+</section>
+    <section class='left slide'>
+  <div class='spacer top'></div>
+  <div class='content'>
+    <h2>This is the <code>spec_helper.rb</code> that I&#39;ve created.</h2>
 
 <figure>
 <textarea class='code' display='none' mode='ruby'>require 'chefspec'&#x000A;require 'fauxhai'&#x000A;&#x000A;Dir["./spec/support/**/*.rb"].sort.each {|f| require f}&#x000A;&#x000A;RSpec.configure do |config|&#x000A;  config.before(:each) do&#x000A;    # Change this to whatever OS you want to stub out, or move it into a before block if different spec files need different OSes.&#x000A;    Fauxhai.mock(platform: 'ubuntu', version: '10.04')&#x000A;&#x000A;    Chef::Recipe.any_instance.stub(:load_recipe).and_return do |arg|&#x000A;      runner.node.run_state[:seen_recipes][arg] = true&#x000A;    end&#x000A;  end&#x000A;end&#x000A;&#x000A;# Chef normally defaults to the '_default' environment. For tests, run by default in the 'test' environment.&#x000A;def runner(environment = "test")&#x000A;  # A workaround so that ChefSpec can work with Chef environments (from https://github.com/acrmp/chefspec/issues/54)&#x000A;&#x000A;  @runner ||= ChefSpec::ChefRunner.new do |node|&#x000A;  # Delete the above line and uncomment the two below if you want to load dependent cookbooks&#x000A;  #cookbook_paths = %W(#{File.expand_path("..", Dir.pwd)} #{File.expand_path(Dir.pwd)}/cookbooks)&#x000A;  #@runner ||= ChefSpec::ChefRunner.new({cookbook_path: cookbook_paths}) do |node|&#x000A;    env = Chef::Environment.new&#x000A;    env.name environment&#x000A;&#x000A;    node.stub(:chef_environment).and_return env.name&#x000A;    Chef::Environment.stub(:load).and_return env&#x000A;  end&#x000A;end</textarea>
