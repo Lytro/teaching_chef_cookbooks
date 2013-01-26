@@ -389,3 +389,84 @@ describe 'chef_ec2_cli_tools::api' do
 end
 ```
 </figure>
+
+!SLIDE left
+
+### `definitions/ec2_tools.rb`
+
+<figure>
+```ruby
+define :ec2_tools do
+  require 'fileutils'
+
+  filename = "ec2-#{params[:name]}-tools"
+  extension = ".zip"
+
+  package "unzip"
+
+  remote_file "/tmp/#{filename + extension}" do
+    source "http://s3.amazonaws.com/ec2-downloads/#{filename + extension}"
+  end
+
+  execute "extract ec2 tools" do
+    cwd "/tmp"
+    command "unzip -o ./#{filename + extension}"
+  end
+
+  ruby_block "copy ec2 tools to #{node['chef_ec2_cli_tools']['install_target']}" do
+    block do
+      filename = "ec2-#{params[:name]}-tools" # Chef ruby_blocks do not retain variables assigned outside of the block
+      source = Dir["/tmp/#{filename}-*"]
+      target = node["chef_ec2_cli_tools"]["install_target"]
+
+      Chef::Log.info "Checking for tools in #{source}"
+
+      unless source.empty?
+        FileUtils.mkdir_p target
+
+        FileUtils.cd(source.first) do
+          Chef::Log.info "Attempting to copy files from #{FileUtils.pwd}"
+
+          FileUtils.cp_r(".", target)
+        end
+      end
+    end
+  end
+
+  template "/etc/profile.d/ec2_tools.sh" do
+    source "ec2_tools.sh.erb"
+    owner "root"
+    group "root"
+    mode 0755
+
+    not_if { File.exists? "/etc/profile.d/ec2_tools.sh" }
+  end
+end
+```
+</figure>
+
+### `spec/support/ec2_cli_tools.rb`
+
+<figure>
+```ruby
+require 'spec_helper'
+
+shared_examples_for "ec2 cli tools" do |ami_or_api|
+  it "installs unzip" do
+    chef_run.should install_package 'unzip'
+  end
+
+  it "sets the EC2_HOME environment variable and adds the tools to the path" do
+    chef_run.should create_file_with_content '/etc/profile.d/ec2_tools.sh',
+                                             "export EC2_HOME=#{@runner.node['chef_ec2_cli_tools']['install_target']}"
+    chef_run.should create_file_with_content '/etc/profile.d/ec2_tools.sh',
+                                             "export PATH=$PATH:#{@runner.node['chef_ec2_cli_tools']['install_target']}/bin"
+    chef_run.template('/etc/profile.d/ec2_tools.sh').should be_owned_by('root', 'root')
+  end
+
+  it "downloads the ec2 tools" do
+    chef_run.should create_remote_file "/tmp/ec2-#{ami_or_api}-tools.zip"
+  end
+end
+```
+</figure>

@@ -291,6 +291,25 @@
   </div>
   <div class='spacer bottom'></div>
 </section>
+    <section class='left slide'>
+  <div class='spacer top'></div>
+  <div class='content'>
+    <h3><code>definitions/ec2_tools.rb</code></h3>
+
+<figure>
+<textarea class='code' display='none' mode='ruby'>define :ec2_tools do&#x000A;  require 'fileutils'&#x000A;&#x000A;  filename = "ec2-#{params[:name]}-tools"&#x000A;  extension = ".zip"&#x000A;&#x000A;  package "unzip"&#x000A;&#x000A;  remote_file "/tmp/#{filename + extension}" do&#x000A;    source "http://s3.amazonaws.com/ec2-downloads/#{filename + extension}"&#x000A;  end&#x000A;&#x000A;  execute "extract ec2 tools" do&#x000A;    cwd "/tmp"&#x000A;    command "unzip -o ./#{filename + extension}"&#x000A;  end&#x000A;&#x000A;  ruby_block "copy ec2 tools to #{node['chef_ec2_cli_tools']['install_target']}" do&#x000A;    block do&#x000A;      filename = "ec2-#{params[:name]}-tools" # Chef ruby_blocks do not retain variables assigned outside of the block&#x000A;      source = Dir["/tmp/#{filename}-*"]&#x000A;      target = node["chef_ec2_cli_tools"]["install_target"]&#x000A;&#x000A;      Chef::Log.info "Checking for tools in #{source}"&#x000A;&#x000A;      unless source.empty?&#x000A;        FileUtils.mkdir_p target&#x000A;&#x000A;        FileUtils.cd(source.first) do&#x000A;          Chef::Log.info "Attempting to copy files from #{FileUtils.pwd}"&#x000A;&#x000A;          FileUtils.cp_r(".", target)&#x000A;        end&#x000A;      end&#x000A;    end&#x000A;  end&#x000A;&#x000A;  template "/etc/profile.d/ec2_tools.sh" do&#x000A;    source "ec2_tools.sh.erb"&#x000A;    owner "root"&#x000A;    group "root"&#x000A;    mode 0755&#x000A;&#x000A;    not_if { File.exists? "/etc/profile.d/ec2_tools.sh" }&#x000A;  end&#x000A;end</textarea>
+
+</figure>
+
+<h3><code>spec/support/ec2_cli_tools.rb</code></h3>
+
+<figure>
+<textarea class='code' display='none' mode='ruby'>require 'spec_helper'&#x000A;&#x000A;shared_examples_for "ec2 cli tools" do |ami_or_api|&#x000A;  it "installs unzip" do&#x000A;    chef_run.should install_package 'unzip'&#x000A;  end&#x000A;&#x000A;  it "sets the EC2_HOME environment variable and adds the tools to the path" do&#x000A;    chef_run.should create_file_with_content '/etc/profile.d/ec2_tools.sh',&#x000A;                                             "export EC2_HOME=#{@runner.node['chef_ec2_cli_tools']['install_target']}"&#x000A;    chef_run.should create_file_with_content '/etc/profile.d/ec2_tools.sh',&#x000A;                                             "export PATH=$PATH:#{@runner.node['chef_ec2_cli_tools']['install_target']}/bin"&#x000A;    chef_run.template('/etc/profile.d/ec2_tools.sh').should be_owned_by('root', 'root')&#x000A;  end&#x000A;&#x000A;  it "downloads the ec2 tools" do&#x000A;    chef_run.should create_remote_file "/tmp/ec2-#{ami_or_api}-tools.zip"&#x000A;  end&#x000A;end</textarea>
+
+</figure>
+  </div>
+  <div class='spacer bottom'></div>
+</section>
     <!-- deck.js navigation extension -->
     <a class='deck-prev-link' href='#' title='Previous'>&#8592;</a>
     <a class='deck-next-link' href='#' title='Next'>&#8594;</a>
