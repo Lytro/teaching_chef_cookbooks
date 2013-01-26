@@ -237,6 +237,41 @@
   </div>
   <div class='spacer bottom'></div>
 </section>
+    <section class='left slide'>
+  <div class='spacer top'></div>
+  <div class='content'>
+    <h2>Time for <a href="https://github.com/acrmp/chefspec">ChefSpec</a></h2>
+
+<h3><code>spec/spec_helper.rb</code></h3>
+
+<figure>
+<textarea class='code' display='none' mode='ruby'>require 'chefspec'&#x000A;require 'fauxhai'&#x000A;&#x000A;Dir["./spec/support/**/*.rb"].sort.each {|f| require f}&#x000A;&#x000A;RSpec.configure do |config|&#x000A;  config.before(:each) do&#x000A;    # Change this to whatever OS you want to stub out, or move it into a before block if different spec files need different OSes.&#x000A;    Fauxhai.mock(platform: 'ubuntu', version: '10.04')&#x000A;&#x000A;    Chef::Recipe.any_instance.stub(:load_recipe).and_return do |arg|&#x000A;      runner.node.run_state[:seen_recipes][arg] = true&#x000A;    end&#x000A;  end&#x000A;end&#x000A;&#x000A;# Chef normally defaults to the '_default' environment. For tests, run by default in the 'test' environment.&#x000A;def runner(environment = "test")&#x000A;  # A workaround so that ChefSpec can work with Chef environments (from https://github.com/acrmp/chefspec/issues/54)&#x000A;&#x000A;  @runner ||= ChefSpec::ChefRunner.new do |node|&#x000A;  # Delete the above line and uncomment the two below if you want to load dependent cookbooks&#x000A;  #cookbook_paths = %W(#{File.expand_path("..", Dir.pwd)} #{File.expand_path(Dir.pwd)}/cookbooks)&#x000A;  #@runner ||= ChefSpec::ChefRunner.new({cookbook_path: cookbook_paths}) do |node|&#x000A;    env = Chef::Environment.new&#x000A;    env.name environment&#x000A;&#x000A;    node.stub(:chef_environment).and_return env.name&#x000A;    Chef::Environment.stub(:load).and_return env&#x000A;  end&#x000A;end</textarea>
+
+</figure>
+  </div>
+  <div class='spacer bottom'></div>
+</section>
+    <section class='left slide'>
+  <div class='spacer top'></div>
+  <div class='content'>
+    <h2>Let&#39;s look at them side by side. <a href="">lytro/chef_ec2_cli_tools</a></h2>
+
+<h3><code>default.rb</code></h3>
+
+<figure>
+<textarea class='code' display='none' mode='ruby'>include_recipe "chef_ec2_cli_tools::ami"&#x000A;include_recipe "chef_ec2_cli_tools::api"</textarea>
+
+</figure>
+
+<h3><code>default_spec.rb</code></h3>
+
+<figure>
+<textarea class='code' display='none' mode='ruby'>require 'spec_helper'&#x000A;&#x000A;describe 'chef_ec2_cli_tools::default' do&#x000A;  let(:chef_run) { runner.converge 'chef_ec2_cli_tools::default' }&#x000A;&#x000A;  it "includes the ::ami recipe" do&#x000A;    chef_run.should include_recipe "chef_ec2_cli_tools::ami"&#x000A;  end&#x000A;&#x000A;  it "includes the ::api recipe" do&#x000A;    chef_run.should include_recipe "chef_ec2_cli_tools::api"&#x000A;  end&#x000A;end</textarea>
+
+</figure>
+  </div>
+  <div class='spacer bottom'></div>
+</section>
     <!-- deck.js navigation extension -->
     <a class='deck-prev-link' href='#' title='Previous'>&#8592;</a>
     <a class='deck-next-link' href='#' title='Next'>&#8594;</a>
