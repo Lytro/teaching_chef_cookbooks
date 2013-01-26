@@ -313,7 +313,7 @@ end
 
 ## Let's look at them side by side. [lytro/chef_ec2_cli_tools]()
 
-### `default.rb`
+### `recipes/default.rb`
 
 <figure>
 ```ruby
@@ -322,7 +322,7 @@ include_recipe "chef_ec2_cli_tools::api"
 ```
 </figure>
 
-### `default_spec.rb`
+### `spec/default_spec.rb`
 
 <figure>
 ```ruby
@@ -337,6 +337,54 @@ describe 'chef_ec2_cli_tools::default' do
 
   it "includes the ::api recipe" do
     chef_run.should include_recipe "chef_ec2_cli_tools::api"
+  end
+end
+```
+</figure>
+
+!SLIDE left
+
+### `recipes/api.rb`
+
+<figure>
+```ruby
+ec2_tools "api"
+
+include_recipe "java" do
+  only_if { node["chef_ec2_cli_tools"]["install_java?"] }
+end
+
+template "/etc/profile.d/aws_keys.sh" do
+  source "aws_keys.sh.erb"
+  owner "root"
+  group "root"
+
+  mode 0755
+end
+```
+</figure>
+
+### `spec/api_spec.rb`
+
+<figure>
+```ruby
+require 'spec_helper'
+
+describe 'chef_ec2_cli_tools::api' do
+  let(:chef_run) { @runner.converge 'chef_ec2_cli_tools::api' }
+
+  it_behaves_like 'ec2 cli tools', 'api'
+
+  it "installs java" do
+    chef_run.should include_recipe 'java'
+  end
+
+  it "exports the AWS_ACCESS_KEY and AWS_SECRET_KEY" do
+    chef_run.should create_file_with_content '/etc/profile.d/aws_keys.sh',
+                                             "export AWS_ACCESS_KEY=#{@runner.node['chef_ec2_cli_tools']['aws_access_key']}"
+    chef_run.should create_file_with_content '/etc/profile.d/aws_keys.sh',
+                                             "export AWS_SECRET_KEY=#{@runner.node['chef_ec2_cli_tools']['aws_secret_key']}"
+    chef_run.template('/etc/profile.d/aws_keys.sh').should be_owned_by('root', 'root')
   end
 end
 ```

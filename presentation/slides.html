@@ -256,17 +256,36 @@
   <div class='content'>
     <h2>Let&#39;s look at them side by side. <a href="">lytro/chef_ec2_cli_tools</a></h2>
 
-<h3><code>default.rb</code></h3>
+<h3><code>recipes/default.rb</code></h3>
 
 <figure>
 <textarea class='code' display='none' mode='ruby'>include_recipe "chef_ec2_cli_tools::ami"&#x000A;include_recipe "chef_ec2_cli_tools::api"</textarea>
 
 </figure>
 
-<h3><code>default_spec.rb</code></h3>
+<h3><code>spec/default_spec.rb</code></h3>
 
 <figure>
 <textarea class='code' display='none' mode='ruby'>require 'spec_helper'&#x000A;&#x000A;describe 'chef_ec2_cli_tools::default' do&#x000A;  let(:chef_run) { runner.converge 'chef_ec2_cli_tools::default' }&#x000A;&#x000A;  it "includes the ::ami recipe" do&#x000A;    chef_run.should include_recipe "chef_ec2_cli_tools::ami"&#x000A;  end&#x000A;&#x000A;  it "includes the ::api recipe" do&#x000A;    chef_run.should include_recipe "chef_ec2_cli_tools::api"&#x000A;  end&#x000A;end</textarea>
+
+</figure>
+  </div>
+  <div class='spacer bottom'></div>
+</section>
+    <section class='left slide'>
+  <div class='spacer top'></div>
+  <div class='content'>
+    <h3><code>recipes/api.rb</code></h3>
+
+<figure>
+<textarea class='code' display='none' mode='ruby'>ec2_tools "api"&#x000A;&#x000A;include_recipe "java" do&#x000A;  only_if { node["chef_ec2_cli_tools"]["install_java?"] }&#x000A;end&#x000A;&#x000A;template "/etc/profile.d/aws_keys.sh" do&#x000A;  source "aws_keys.sh.erb"&#x000A;  owner "root"&#x000A;  group "root"&#x000A;&#x000A;  mode 0755&#x000A;end</textarea>
+
+</figure>
+
+<h3><code>spec/api_spec.rb</code></h3>
+
+<figure>
+<textarea class='code' display='none' mode='ruby'>require 'spec_helper'&#x000A;&#x000A;describe 'chef_ec2_cli_tools::api' do&#x000A;  let(:chef_run) { @runner.converge 'chef_ec2_cli_tools::api' }&#x000A;&#x000A;  it_behaves_like 'ec2 cli tools', 'api'&#x000A;&#x000A;  it "installs java" do&#x000A;    chef_run.should include_recipe 'java'&#x000A;  end&#x000A;&#x000A;  it "exports the AWS_ACCESS_KEY and AWS_SECRET_KEY" do&#x000A;    chef_run.should create_file_with_content '/etc/profile.d/aws_keys.sh',&#x000A;                                             "export AWS_ACCESS_KEY=#{@runner.node['chef_ec2_cli_tools']['aws_access_key']}"&#x000A;    chef_run.should create_file_with_content '/etc/profile.d/aws_keys.sh',&#x000A;                                             "export AWS_SECRET_KEY=#{@runner.node['chef_ec2_cli_tools']['aws_secret_key']}"&#x000A;    chef_run.template('/etc/profile.d/aws_keys.sh').should be_owned_by('root', 'root')&#x000A;  end&#x000A;end</textarea>
 
 </figure>
   </div>
