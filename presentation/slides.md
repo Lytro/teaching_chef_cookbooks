@@ -484,3 +484,15 @@ shared_examples_for "ec2 cli tools" do |ami_or_api|
 end
 ```
 </figure>
+
+!SLIDE left
+
+# That's it for now.
+## I know these tools are a little rough around the edges, but I think they have a good foundation and a lot of potential.
+
+If you find something wrong or lacking with ChefSpec, fix/add it! The same should be true of any cookbook you work with, or Chef itself.
+
+Happy cooking.
+abiyani@lytro.com
+https://github.com/Lytro/teaching_chef_cookbooks
+https://github.com/anujbiyani/
