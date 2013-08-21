@@ -273,7 +273,7 @@
     <h2>This is the <code>spec_helper.rb</code> that I&#39;ve created.</h2>
 
 <figure>
-<textarea class='code' display='none' mode='ruby'>require 'chefspec'&#x000A;require 'fauxhai'&#x000A;&#x000A;Dir["./spec/support/**/*.rb"].sort.each {|f| require f}&#x000A;&#x000A;RSpec.configure do |config|&#x000A;  config.before(:each) do&#x000A;    # Change this to whatever OS you want to stub out, or move it into a before block if different spec files need different OSes.&#x000A;    Fauxhai.mock(platform: 'ubuntu', version: '10.04')&#x000A;&#x000A;    Chef::Recipe.any_instance.stub(:load_recipe).and_return do |arg|&#x000A;      runner.node.run_state[:seen_recipes][arg] = true&#x000A;    end&#x000A;  end&#x000A;end&#x000A;&#x000A;# Chef normally defaults to the '_default' environment. For tests, run by default in the 'test' environment.&#x000A;def runner(environment = "test")&#x000A;  # A workaround so that ChefSpec can work with Chef environments (from https://github.com/acrmp/chefspec/issues/54)&#x000A;&#x000A;  @runner ||= ChefSpec::ChefRunner.new do |node|&#x000A;  # Delete the above line and uncomment the two below if you want to load dependent cookbooks&#x000A;  #cookbook_paths = %W(#{File.expand_path("..", Dir.pwd)} #{File.expand_path(Dir.pwd)}/cookbooks)&#x000A;  #@runner ||= ChefSpec::ChefRunner.new({cookbook_path: cookbook_paths}) do |node|&#x000A;    env = Chef::Environment.new&#x000A;    env.name environment&#x000A;&#x000A;    node.stub(:chef_environment).and_return env.name&#x000A;    Chef::Environment.stub(:load).and_return env&#x000A;  end&#x000A;end</textarea>
+<textarea class='code' display='none' mode='ruby'>require 'chefspec'&#x000A;&#x000A;Dir["./spec/support/**/*.rb"].sort.each {|f| require f}&#x000A;&#x000A;def runner(attributes = {}, environment = 'test')&#x000A;  cookbook_paths = %W(#{File.expand_path('..', Dir.pwd)} #{File.expand_path(Dir.pwd)}/cookbooks)&#x000A;&#x000A;  # A workaround so that ChefSpec can work with Chef environments (from https://github.com/acrmp/chefspec/issues/54)&#x000A;  @runner ||= ChefSpec::ChefRunner.new(cookbook_path: cookbook_paths, platform: 'ubuntu', version: '10.04') do |node|&#x000A;    env = Chef::Environment.new&#x000A;    env.name environment&#x000A;    node.stub(:chef_environment).and_return env.name&#x000A;    Chef::Environment.stub(:load).and_return env&#x000A;&#x000A;    attributes.each_pair do |key, val|&#x000A;      node.set[key] = val&#x000A;    end&#x000A;  end&#x000A;end</textarea>
 
 </figure>
   </div>
@@ -282,19 +282,19 @@
     <section class='left slide'>
   <div class='spacer top'></div>
   <div class='content'>
-    <h2>Let&#39;s look at them side by side. <a href="">lytro/chef_ec2_cli_tools</a></h2>
+    <h2>Let&#39;s look at them side by side. <a href="https://github.com/Lytro/aws_developer_tools">lytro/aws_developer_tools</a></h2>
 
 <h3><code>recipes/default.rb</code></h3>
 
 <figure>
-<textarea class='code' display='none' mode='ruby'>include_recipe "chef_ec2_cli_tools::ami"&#x000A;include_recipe "chef_ec2_cli_tools::api"</textarea>
+<textarea class='code' display='none' mode='ruby'>include_recipe 'aws_developer_tools::ami'&#x000A;include_recipe 'aws_developer_tools::api'&#x000A;include_recipe 'aws_developer_tools::auto_scaling'&#x000A;include_recipe 'aws_developer_tools::cloudwatch'</textarea>
 
 </figure>
 
 <h3><code>spec/default_spec.rb</code></h3>
 
 <figure>
-<textarea class='code' display='none' mode='ruby'>require 'spec_helper'&#x000A;&#x000A;describe 'chef_ec2_cli_tools::default' do&#x000A;  let(:chef_run) { runner.converge 'chef_ec2_cli_tools::default' }&#x000A;&#x000A;  it "includes the ::ami recipe" do&#x000A;    chef_run.should include_recipe "chef_ec2_cli_tools::ami"&#x000A;  end&#x000A;&#x000A;  it "includes the ::api recipe" do&#x000A;    chef_run.should include_recipe "chef_ec2_cli_tools::api"&#x000A;  end&#x000A;end</textarea>
+<textarea class='code' display='none' mode='ruby'>require 'spec_helper'&#x000A;&#x000A;describe 'aws_developer_tools::default' do&#x000A;  let(:chef_run) { runner.converge 'aws_developer_tools::default' }&#x000A;&#x000A;  %w(ami api auto_scaling cloudwatch).each do |recipe|&#x000A;    it "includes the #{recipe} recipe" do&#x000A;      expect(chef_run).to include_recipe "aws_developer_tools::#{recipe}"&#x000A;    end&#x000A;  end&#x000A;end</textarea>
 
 </figure>
   </div>
@@ -306,14 +306,14 @@
     <h3><code>recipes/api.rb</code></h3>
 
 <figure>
-<textarea class='code' display='none' mode='ruby'>ec2_tools "api"&#x000A;&#x000A;include_recipe "java" do&#x000A;  only_if { node["chef_ec2_cli_tools"]["install_java?"] }&#x000A;end&#x000A;&#x000A;template "/etc/profile.d/aws_keys.sh" do&#x000A;  source "aws_keys.sh.erb"&#x000A;  owner "root"&#x000A;  group "root"&#x000A;&#x000A;  mode 0755&#x000A;end</textarea>
+<textarea class='code' display='none' mode='ruby'>cli_tools 'api' do&#x000A;  source node['aws_developer_tools']['api']['source']&#x000A;end&#x000A;&#x000A;include_recipe 'java' do&#x000A;  only_if { node['aws_developer_tools']['install_java?'] }&#x000A;end&#x000A;&#x000A;template '/etc/profile.d/aws_keys.sh' do&#x000A;  source 'aws_keys.sh.erb'&#x000A;  owner 'root'&#x000A;  group 'root'&#x000A;  mode 0755&#x000A;  only_if { node['aws_developer_tools']['deploy_key?'] }&#x000A;end</textarea>
 
 </figure>
 
 <h3><code>spec/api_spec.rb</code></h3>
 
 <figure>
-<textarea class='code' display='none' mode='ruby'>require 'spec_helper'&#x000A;&#x000A;describe 'chef_ec2_cli_tools::api' do&#x000A;  let(:chef_run) { runner.converge 'chef_ec2_cli_tools::api' }&#x000A;&#x000A;  it_behaves_like 'ec2 cli tools', 'api'&#x000A;&#x000A;  it "installs java" do&#x000A;    chef_run.should include_recipe 'java'&#x000A;  end&#x000A;&#x000A;  it "exports the AWS_ACCESS_KEY and AWS_SECRET_KEY" do&#x000A;    chef_run.should create_file_with_content '/etc/profile.d/aws_keys.sh',&#x000A;                                             "export AWS_ACCESS_KEY=#{runner.node['chef_ec2_cli_tools']['aws_access_key']}"&#x000A;    chef_run.should create_file_with_content '/etc/profile.d/aws_keys.sh',&#x000A;                                             "export AWS_SECRET_KEY=#{runner.node['chef_ec2_cli_tools']['aws_secret_key']}"&#x000A;    chef_run.template('/etc/profile.d/aws_keys.sh').should be_owned_by('root', 'root')&#x000A;  end&#x000A;end</textarea>
+<textarea class='code' display='none' mode='ruby'>require 'spec_helper'&#x000A;&#x000A;describe 'aws_developer_tools::api' do&#x000A;  let(:chef_run) { runner.converge 'aws_developer_tools::api' }&#x000A;&#x000A;  it_behaves_like 'cli tools', 'api'&#x000A;  it_behaves_like 'ec2 tools'&#x000A;&#x000A;  it 'installs java' do&#x000A;    expect(chef_run).to include_recipe 'java'&#x000A;  end&#x000A;&#x000A;  it 'exports the AWS_ACCESS_KEY and AWS_SECRET_KEY' do&#x000A;    expect(chef_run).to create_file_with_content '/etc/profile.d/aws_keys.sh',&#x000A;                                                 'export AWS_ACCESS_KEY=Your Access Key'&#x000A;    expect(chef_run).to create_file_with_content '/etc/profile.d/aws_keys.sh',&#x000A;                                                 'export AWS_SECRET_KEY=Your Secret Key'&#x000A;&#x000A;    expect(chef_run.template('/etc/profile.d/aws_keys.sh')).to be_owned_by('root', 'root')&#x000A;  end&#x000A;end</textarea>
 
 </figure>
   </div>
@@ -322,17 +322,17 @@
     <section class='left slide'>
   <div class='spacer top'></div>
   <div class='content'>
-    <h3><code>definitions/ec2_tools.rb</code></h3>
+    <h3><code>definitions/cli_tools.rb</code></h3>
 
 <figure>
-<textarea class='code' display='none' mode='ruby'>define :ec2_tools do&#x000A;  require 'fileutils'&#x000A;&#x000A;  filename = "ec2-#{params[:name]}-tools"&#x000A;  extension = ".zip"&#x000A;&#x000A;  package "unzip"&#x000A;&#x000A;  remote_file "/tmp/#{filename + extension}" do&#x000A;    source "http://s3.amazonaws.com/ec2-downloads/#{filename + extension}"&#x000A;  end&#x000A;&#x000A;  execute "extract ec2 tools" do&#x000A;    cwd "/tmp"&#x000A;    command "unzip -o ./#{filename + extension}"&#x000A;  end&#x000A;&#x000A;  ruby_block "copy ec2 tools to #{node['chef_ec2_cli_tools']['install_target']}" do&#x000A;    block do&#x000A;      filename = "ec2-#{params[:name]}-tools" # Chef ruby_blocks do not retain variables assigned outside of the block&#x000A;      source = Dir["/tmp/#{filename}-*"]&#x000A;      target = node["chef_ec2_cli_tools"]["install_target"]&#x000A;&#x000A;      Chef::Log.info "Checking for tools in #{source}"&#x000A;&#x000A;      unless source.empty?&#x000A;        FileUtils.mkdir_p target&#x000A;&#x000A;        FileUtils.cd(source.first) do&#x000A;          Chef::Log.info "Attempting to copy files from #{FileUtils.pwd}"&#x000A;&#x000A;          FileUtils.cp_r(".", target)&#x000A;        end&#x000A;      end&#x000A;    end&#x000A;  end&#x000A;&#x000A;  template "/etc/profile.d/ec2_tools.sh" do&#x000A;    source "ec2_tools.sh.erb"&#x000A;    owner "root"&#x000A;    group "root"&#x000A;    mode 0755&#x000A;&#x000A;    not_if { File.exists? "/etc/profile.d/ec2_tools.sh" }&#x000A;  end&#x000A;end</textarea>
+<textarea class='code' display='none' mode='ruby'>define :cli_tools, :extension => '.zip' do&#x000A;  require 'fileutils'&#x000A;&#x000A;  package 'unzip'&#x000A;&#x000A;  remote_file "/tmp/#{params[:name] + params[:extension]}" do&#x000A;    source params[:source]&#x000A;  end&#x000A;&#x000A;  execute 'cleanup old installs and extract the aws tool' do&#x000A;    cwd '/tmp'&#x000A;    command "rm -rf #{params[:name]} && mkdir #{params[:name]} && mv #{params[:name] + params[:extension]} #{params[:name]}/ && cd #{params[:name]} && unzip -o ./#{params[:name] + params[:extension]}"&#x000A;  end&#x000A;&#x000A;  ruby_block 'copy the tools to the target directory' do&#x000A;    block do&#x000A;      FileUtils.cd("/tmp/#{params[:name]}") do&#x000A;        source = Dir['*'].detect { |file| File.directory? file }&#x000A;        target = node['aws_developer_tools'][params[:name]]['install_target']&#x000A;&#x000A;        Chef::Log.info "Checking for tools in #{source}"&#x000A;&#x000A;        if source&#x000A;          FileUtils.mkdir_p target&#x000A;&#x000A;          FileUtils.cd(source) do&#x000A;            Chef::Log.info "Attempting to copy files from #{FileUtils.pwd}"&#x000A;&#x000A;            FileUtils.cp_r('.', target)&#x000A;          end&#x000A;        end&#x000A;      end&#x000A;    end&#x000A;  end&#x000A;&#x000A;  if AwsDeveloperTools.type?(params[:name]) == :ec2&#x000A;    template '/etc/profile.d/ec2_tools.sh' do&#x000A;      mode 0755&#x000A;    end&#x000A;  else&#x000A;    template "#{node['aws_developer_tools']['aws_tools_target']}/credentials" do&#x000A;      mode 0444&#x000A;    end&#x000A;&#x000A;    template "/etc/profile.d/#{params[:name]}.sh" do&#x000A;      mode 0755&#x000A;    end&#x000A;&#x000A;    template '/etc/profile.d/aws_tools.sh' do&#x000A;      mode 0755&#x000A;    end&#x000A;  end&#x000A;end</textarea>
 
 </figure>
 
 <h3><code>spec/support/ec2_cli_tools.rb</code></h3>
 
 <figure>
-<textarea class='code' display='none' mode='ruby'>require 'spec_helper'&#x000A;&#x000A;shared_examples_for "ec2 cli tools" do |ami_or_api|&#x000A;  it "installs unzip" do&#x000A;    chef_run.should install_package 'unzip'&#x000A;  end&#x000A;&#x000A;  it "sets the EC2_HOME environment variable and adds the tools to the path" do&#x000A;    chef_run.should create_file_with_content '/etc/profile.d/ec2_tools.sh',&#x000A;                                             "export EC2_HOME=#{runner.node['chef_ec2_cli_tools']['install_target']}"&#x000A;    chef_run.should create_file_with_content '/etc/profile.d/ec2_tools.sh',&#x000A;                                             "export PATH=$PATH:#{runner.node['chef_ec2_cli_tools']['install_target']}/bin"&#x000A;    chef_run.template('/etc/profile.d/ec2_tools.sh').should be_owned_by('root', 'root')&#x000A;  end&#x000A;&#x000A;  it "downloads the ec2 tools" do&#x000A;    chef_run.should create_remote_file "/tmp/ec2-#{ami_or_api}-tools.zip"&#x000A;  end&#x000A;end</textarea>
+<textarea class='code' display='none' mode='ruby'>shared_examples_for 'cli tools' do |tool_name|&#x000A;  it 'installs unzip' do&#x000A;    expect(chef_run).to install_package 'unzip'&#x000A;  end&#x000A;&#x000A;  it 'downloads the tools' do&#x000A;    expect(chef_run).to create_remote_file "/tmp/#{tool_name}.zip"&#x000A;  end&#x000A;&#x000A;  it 'extracts the tools' do&#x000A;    expect(chef_run).to execute_ruby_block 'copy the tools to the target directory'&#x000A;  end&#x000A;end</textarea>
 
 </figure>
   </div>
